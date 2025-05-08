@@ -14,3 +14,9 @@
 - Modified `translate()` to return the translated text (or empty string on failure).
 - Updated `useEffect` to invoke `translate()` and store its result in state.
 - Changed the `Detail` component's `markdown` prop to render `translation` instead of the static `hello` value.
+
+## src/translate-to-ru.tsx: Load translation and rephrase on demand
+
+- Removed pre-fetch logic and `translation` state from the `Command` component.
+- Introduced `TranslationDetail` and `RephraseDetail` components that fetch and render their content when mounted.
+- Updated `Command` to push to these detail views only when the user clicks the corresponding list item.

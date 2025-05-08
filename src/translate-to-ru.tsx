@@ -1,50 +1,33 @@
 import { ActionPanel, Detail, List, Action, Icon, getSelectedText, showHUD, Clipboard } from "@raycast/api";
 // import * as fs from "fs";
 import { execFile } from "child_process";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { promisify } from "util";
 
 const execFileAsync = promisify(execFile);
 
-const Command = () => {
-  const hasRunRef = useRef(false);
-  const rephrasal = "TODO";
-  const [translation, setTranslation] = useState<string>("");
-  useEffect(() => {
-    if (hasRunRef.current) return;
-    hasRunRef.current = true;
-
-    (async () => {
-      const result = await translate();
-      if (result) {
-        setTranslation(result);
+const Command = () => (
+  <List>
+    <List.Item
+      icon={Icon.Bird}
+      title="Translate"
+      actions={
+        <ActionPanel>
+          <Action.Push title="Show Translation" target={<TranslationDetail />} />
+        </ActionPanel>
       }
-    })();
-  }, []);
-
-  return (
-    <List>
-      <List.Item
-        icon={Icon.Bird}
-        title="Translate"
-        actions={
-          <ActionPanel>
-            <Action.Push title="Show Translation" target={<Detail markdown={`# ${translation}`} />} />
-          </ActionPanel>
-        }
-      />
-      <List.Item
-        icon={Icon.Bird}
-        title="Rephrase"
-        actions={
-          <ActionPanel>
-            <Action.Push title="Show Rephrase" target={<Detail markdown={`# ${rephrasal}`} />} />
-          </ActionPanel>
-        }
-      />
-    </List>
-  );
-};
+    />
+    <List.Item
+      icon={Icon.Bird}
+      title="Rephrase"
+      actions={
+        <ActionPanel>
+          <Action.Push title="Show Rephrase" target={<RephraseDetail />} />
+        </ActionPanel>
+      }
+    />
+  </List>
+);
 
 async function translate(): Promise<string> {
   try {
@@ -106,31 +89,28 @@ async function getQuery() {
   return selectedText.trim();
 }
 
+// Detail view for translation; loads content on demand
+const TranslationDetail = () => {
+  const [markdown, setMarkdown] = useState<string>("Loading...");
+  useEffect(() => {
+    (async () => {
+      const result = await translate();
+      setMarkdown(`# ${result}`);
+    })();
+  }, []);
+  return <Detail navigationTitle="Translation" markdown={markdown} />;
+};
+
+// Detail view for rephrase; loads content on demand
+const RephraseDetail = () => {
+  const [markdown, setMarkdown] = useState<string>("Loading...");
+  useEffect(() => {
+    (async () => {
+      const result = await rephrase();
+      setMarkdown(`# ${result}`);
+    })();
+  }, []);
+  return <Detail navigationTitle="Rephrase" markdown={markdown} />;
+};
+
 export default Command;
-
-// export { Command };
-
-// export default function Command() {
-//   return (
-//     <List>
-//       <List.Item
-//         icon={Icon.Bird}
-//         title="Greeting!"
-//         actions={
-//           <ActionPanel>
-//             <Action.Push title="Show Details" target={<Detail markdown="# Hey! 👋" />} />
-//           </ActionPanel>
-//         }
-//       />
-//       <List.Item
-//         icon={Icon.Bird}
-//         title="Hello"
-//         actions={
-//           <ActionPanel>
-//             <Action.Push title="Show Details" target={<Detail markdown="# Hello! 👋" />} />
-//           </ActionPanel>
-//         }
-//       />
-//     </List>
-//   );
-// }
