@@ -1,19 +1,25 @@
 import { ActionPanel, Detail, List, Action, Icon, getSelectedText, showHUD, Clipboard } from "@raycast/api";
 // import * as fs from "fs";
 import { execFile } from "child_process";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { promisify } from "util";
 
 const execFileAsync = promisify(execFile);
 
 const Command = () => {
   const hasRunRef = useRef(false);
-  const hello = "Hello!!!";
+  const rephrasal = "TODO";
+  const [translation, setTranslation] = useState<string>("");
   useEffect(() => {
     if (hasRunRef.current) return;
     hasRunRef.current = true;
 
-    translate();
+    (async () => {
+      const result = await translate();
+      if (result) {
+        setTranslation(result);
+      }
+    })();
   }, []);
 
   return (
@@ -23,7 +29,7 @@ const Command = () => {
         title="Translate"
         actions={
           <ActionPanel>
-            <Action.Push title="Show Translation" target={<Detail markdown={`# ${hello}! 👋`} />} />
+            <Action.Push title="Show Translation" target={<Detail markdown={`# ${translation}`} />} />
           </ActionPanel>
         }
       />
@@ -32,7 +38,7 @@ const Command = () => {
         title="Rephrase"
         actions={
           <ActionPanel>
-            <Action.Push title="Show Rephrase" target={<Detail markdown="# TODO! 👋" />} />
+            <Action.Push title="Show Rephrase" target={<Detail markdown={`# ${rephrasal}`} />} />
           </ActionPanel>
         }
       />
@@ -40,28 +46,54 @@ const Command = () => {
   );
 };
 
-async function translate() {
+async function translate(): Promise<string> {
   try {
     const selectedText = await getQuery();
 
     try {
-      // Run external translation script and capture output
       const { stdout, stderr } = await execFileAsync("/Users/pkoptilin/workspace/bin/deeptranslate", [selectedText]);
       if (stderr) {
         throw new Error(stderr);
       }
       const translated = stdout.trim();
-      // Print to console and copy to clipboard
       console.log(translated);
       await Clipboard.copy(translated);
-      await showHUD("✅ Translated to Russian and copied to clipboard.");
+      // await showHUD("✅ Translated to Russian and copied to clipboard.");
+      return translated;
     } catch (error) {
       console.error(error);
-      await showHUD("⚠️ Failed to translate " + selectedText);
+      // await showHUD("⚠️ Failed to translate " + selectedText);
+      return "⚠️ Failed to translate " + selectedText;
     }
   } catch (error) {
     console.log(error);
-    await showHUD("Cannot Quick Open, message: " + error);
+    // await showHUD("Cannot Quick Open, message: " + error);
+    return "Cannot Quick Open, message: " + error;
+  }
+}
+
+async function rephrase(): Promise<string> {
+  try {
+    const selectedText = await getQuery();
+
+    try {
+      const { stdout, stderr } = await execFileAsync("/Users/pkoptilin/workspace/raycast/deep-translate-en-en.sh", [
+        selectedText,
+      ]);
+      if (stderr) {
+        throw new Error(stderr);
+      }
+      const translated = stdout.trim();
+      console.log(translated);
+      await Clipboard.copy(translated);
+      return translated;
+    } catch (error) {
+      console.error(error);
+      return "⚠️ Failed to rephrase " + selectedText;
+    }
+  } catch (error) {
+    console.log(error);
+    return "Cannot Quick Open, message: " + error;
   }
 }
 
