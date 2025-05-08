@@ -30,3 +30,14 @@
   - Copying result to clipboard
   - Unified error handling for command and query failures
 - Simplified `translate()` and `rephrase()` to single-line wrappers calling `runAction` with their script paths and action names.
+  - Simplified `translate()` and `rephrase()` to single-line wrappers calling `runAction` with their script paths and action names.
+
+## src/translate-to-ru.tsx: Show original and converted text in detail views
+
+- Changed `runAction` to return an object `{ original, converted }` instead of a single string.
+- Updated `translate()` and `rephrase()` signatures to reflect the new return type.
+- Updated `TranslationDetail` to destructure `{ original, converted }` and display both sections:
+  - `## From` shows the original selected or clipboard text.
+  - `## To` shows the translated text.
+- Updated `RephraseDetail` similarly to show the original and rephrased text.
+- Removed the placeholder `todo add from` line.

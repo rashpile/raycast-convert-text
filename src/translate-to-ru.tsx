@@ -28,15 +28,19 @@ const Command = () => (
   </List>
 );
 
-async function translate(): Promise<string> {
+async function translate(): Promise<{ original: string; converted: string }> {
+  console.log("run translate");
+
   return runAction("translate", "/Users/pkoptilin/workspace/bin/deeptranslate");
 }
 
-async function rephrase(): Promise<string> {
-  return runAction("rephrase", "/Users/pkoptilin/workspace/raycast/deep-translate-en-en.sh");
+async function rephrase(): Promise<{ original: string; converted: string }> {
+  console.log("run rephrase");
+
+  return runAction("rephrase", "/Users/pkoptilin/workspace/raycast/pako-rephrase.sh");
 }
 
-async function runAction(action: string, script: string): Promise<string> {
+async function runAction(action: string, script: string): Promise<{ original: string; converted: string }> {
   try {
     const selectedText = await getQuery();
 
@@ -45,17 +49,23 @@ async function runAction(action: string, script: string): Promise<string> {
       if (stderr) {
         throw new Error(stderr);
       }
-      const translated = stdout.trim();
-      console.log(translated);
-      await Clipboard.copy(translated);
-      return translated;
+      const converted = stdout.trim();
+      console.log(converted);
+      //await Clipboard.copy(converted);
+      return { original: selectedText, converted };
     } catch (error) {
       console.error(error);
-      return "⚠️ Failed to " + action + ": " + selectedText;
+      return {
+        original: selectedText,
+        converted: "⚠️ Failed to " + action + ": " + selectedText,
+      };
     }
   } catch (error) {
     console.log(error);
-    return "Cannot Quick Open, message: " + error;
+    return {
+      original: "",
+      converted: "Cannot Quick Open, message: " + error,
+    };
   }
 }
 
@@ -73,12 +83,14 @@ const TranslationDetail = () => {
   const [markdown, setMarkdown] = useState<string>("Loading...");
   useEffect(() => {
     (async () => {
-      const result = await translate();
-      setMarkdown(`# Translate
+      const { original, converted } = await translate();
+      setMarkdown(
+        `# Translate
 ## From
-todo add from
+${original}
 ## To
-${result}`);
+${converted}`,
+      );
     })();
   }, []);
   return <Detail navigationTitle="Translation" markdown={markdown} />;
@@ -89,8 +101,14 @@ const RephraseDetail = () => {
   const [markdown, setMarkdown] = useState<string>("Loading...");
   useEffect(() => {
     (async () => {
-      const result = await rephrase();
-      setMarkdown(`# ${result}`);
+      const { original, converted } = await rephrase();
+      setMarkdown(
+        `# Rephrase
+## From
+${original}
+## To
+${converted}`,
+      );
     })();
   }, []);
   return <Detail navigationTitle="Rephrase" markdown={markdown} />;
