@@ -1,6 +1,6 @@
 import { ActionPanel, Detail, List, Action, Icon, getSelectedText, Clipboard } from "@raycast/api";
 import { execFile } from "child_process";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { promisify } from "util";
 
 const execFileAsync = promisify(execFile);
@@ -50,6 +50,7 @@ async function runAction(action: string, script: string): Promise<{ original: st
         throw new Error(stderr);
       }
       const converted = stdout.trim();
+      console.log(selectedText);
       console.log(converted);
       //await Clipboard.copy(converted);
       return { original: selectedText, converted };
@@ -73,7 +74,7 @@ async function getQuery() {
   let selectedText = (await getSelectedText()).trim();
   if (selectedText.length === 0) {
     selectedText = (await Clipboard.readText()) || "";
-    console.log(selectedText);
+    // console.log(selectedText);
   }
   return selectedText.trim();
 }
@@ -81,7 +82,10 @@ async function getQuery() {
 // Detail view for translation; loads content on demand
 const TranslationDetail = () => {
   const [markdown, setMarkdown] = useState<string>("Loading...");
+  const hasRun = useRef(false);
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     (async () => {
       const { original, converted } = await translate();
       setMarkdown(
@@ -99,7 +103,10 @@ ${converted}`,
 // Detail view for rephrase; loads content on demand
 const RephraseDetail = () => {
   const [markdown, setMarkdown] = useState<string>("Loading...");
+  const hasRun = useRef(false);
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     (async () => {
       const { original, converted } = await rephrase();
       setMarkdown(
