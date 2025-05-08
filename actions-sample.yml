@@ -1,0 +1,7 @@
+actions:
+  - name: translate
+    title: Translate Text
+    script: /path/to/translate
+  - name: rephrase
+    title: Rephrase Text
+    script: /path/to/rephrase

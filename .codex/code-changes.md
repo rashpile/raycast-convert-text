@@ -1,3 +1,12 @@
+# Make plugin configurable via actions.yml
+
+- Added `js-yaml` dependency for YAML parsing.
+- Loaded actions configuration from `actions.yml` at runtime.
+- Refactored `src/convert-text.tsx` to dynamically render commands based on configuration.
+- Removed static Translate/Rephrase components and functions.
+- Introduced generic `ActionDetail` component to handle any configured action.
+- Created `actions.yml` in `environment.supportPath` if missing, with default header.
+- When no actions are configured (empty file), added a "Configure Commands" placeholder item to open `actions.yml`.
 # Code Changes
 
 ## translate-to-ru.ts: Implement script execution and result handling

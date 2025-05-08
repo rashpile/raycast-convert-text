@@ -1,44 +1,71 @@
-import { ActionPanel, Detail, List, Action, Icon, getSelectedText, Clipboard } from "@raycast/api";
+import { ActionPanel, Detail, List, Action, getSelectedText, Clipboard, Icon, environment } from "@raycast/api";
 import { execFile } from "child_process";
 import { useEffect, useState, useRef } from "react";
 import { promisify } from "util";
+import fs from "node:fs";
+import path from "node:path";
+import yaml from "js-yaml";
 
 const execFileAsync = promisify(execFile);
 
+// Load actions from configuration file
+type ActionConfig = {
+  name: string;
+  title: string;
+  script: string;
+};
+
+const configPath = path.resolve(process.cwd(), environment.supportPath + "/actions.yml");
+let actionsConfig: ActionConfig[] = [];
+// Ensure config file exists
+if (!fs.existsSync(configPath)) {
+  fs.writeFileSync(
+    configPath,
+    "actions:\n#  - name: translate\n#    title: Translate Text\n#    script: /path/to/translate\n",
+    "utf8",
+  );
+}
+try {
+  const fileContents = fs.readFileSync(configPath, "utf8");
+  const parsed = yaml.load(fileContents) as { actions: ActionConfig[] };
+  if (parsed && Array.isArray(parsed.actions)) {
+    actionsConfig = parsed.actions;
+  } else {
+    console.error("Invalid actions.yml format");
+  }
+} catch (error) {
+  console.error("Failed to load actions.yml:", error);
+}
+
 const Command = () => (
   <List>
-    <List.Item
-      icon={Icon.Book}
-      title="Translate"
-      actions={
-        <ActionPanel>
-          <Action.Push title="Show Translation" target={<TranslationDetail />} />
-        </ActionPanel>
-      }
-    />
-    <List.Item
-      icon={Icon.Bird}
-      title="Rephrase"
-      actions={
-        <ActionPanel>
-          <Action.Push title="Show Rephrase" target={<RephraseDetail />} />
-        </ActionPanel>
-      }
-    />
+    {actionsConfig.length === 0 && (
+      <List.Item
+        key="open-config"
+        title="Configure Commands"
+        accessoryTitle="No commands configured"
+        icon={Icon.Gear}
+        actions={
+          <ActionPanel>
+            <Action.Open title="Open actions.yml" target={configPath} />
+          </ActionPanel>
+        }
+      />
+    )}
+    {actionsConfig.map((action) => (
+      <List.Item
+        key={action.name}
+        title={action.title}
+        icon={Icon.Book}
+        actions={
+          <ActionPanel>
+            <Action.Push title={`Show ${action.title}`} target={<ActionDetail action={action} />} />
+          </ActionPanel>
+        }
+      />
+    ))}
   </List>
 );
-
-async function translate(): Promise<{ original: string; converted: string }> {
-  console.log("run translate");
-
-  return runAction("translate", "/Users/pkoptilin/workspace/bin/deeptranslate");
-}
-
-async function rephrase(): Promise<{ original: string; converted: string }> {
-  console.log("run rephrase");
-
-  return runAction("rephrase", "/Users/pkoptilin/workspace/raycast/pako-rephrase.sh");
-}
 
 async function runAction(action: string, script: string): Promise<{ original: string; converted: string }> {
   try {
@@ -79,66 +106,29 @@ async function getQuery() {
   return selectedText.trim();
 }
 
-// Detail view for translation; loads content on demand
-const TranslationDetail = () => {
+// Generic detail view for actions
+const ActionDetail = ({ action }: { action: ActionConfig }) => {
   const [markdown, setMarkdown] = useState<string>("Loading...");
   const [converted, setConverted] = useState<string>("");
   const hasRun = useRef(false);
-  useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-    (async () => {
-      const { original, converted: result } = await translate();
-      setConverted(result);
-      setMarkdown(
-        `# Translate
-## From
-${original}
-## To
-${result}`,
-      );
-    })();
-  }, []);
-  return (
-    <Detail
-      navigationTitle="Translation"
-      markdown={markdown}
-      actions={
-        <ActionPanel>
-          <Action.CopyToClipboard title="Copy Translation" content={converted} />
-        </ActionPanel>
-      }
-    />
-  );
-};
 
-// Detail view for rephrase; loads content on demand
-const RephraseDetail = () => {
-  const [markdown, setMarkdown] = useState<string>("Loading...");
-  const [converted, setConverted] = useState<string>("");
-  const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
     (async () => {
-      const { original, converted: result } = await rephrase();
+      const { original, converted: result } = await runAction(action.name, action.script);
       setConverted(result);
-      setMarkdown(
-        `# Rephrase
-## From
-${original}
-## To
-${result}`,
-      );
+      setMarkdown(`# ${action.title}\n\n## From\n${original}\n\n## To\n${result}`);
     })();
   }, []);
+
   return (
     <Detail
-      navigationTitle="Rephrase"
+      navigationTitle={action.title}
       markdown={markdown}
       actions={
         <ActionPanel>
-          <Action.CopyToClipboard title="Copy Rephrase" content={converted} />
+          <Action.CopyToClipboard title={`Copy ${action.title}`} content={converted} />
         </ActionPanel>
       }
     />
