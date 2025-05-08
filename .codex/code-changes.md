@@ -41,3 +41,10 @@
   - `## To` shows the translated text.
 - Updated `RephraseDetail` similarly to show the original and rephrased text.
 - Removed the placeholder `todo add from` line.
+ 
+## src/translate-to-ru.tsx: Add Copy to Clipboard actions in detail views
+ 
+- Added `converted` state in both `TranslationDetail` and `RephraseDetail` to store the result text.
+- Extended `<Detail>` components with an `actions` prop containing `Action.CopyToClipboard`:
+  - In `TranslationDetail`, copy translated text via "Copy Translation" action.
+  - In `RephraseDetail`, copy rephrased text via "Copy Rephrase" action.

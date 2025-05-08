@@ -8,7 +8,7 @@ const execFileAsync = promisify(execFile);
 const Command = () => (
   <List>
     <List.Item
-      icon={Icon.Bird}
+      icon={Icon.Book}
       title="Translate"
       actions={
         <ActionPanel>
@@ -82,43 +82,67 @@ async function getQuery() {
 // Detail view for translation; loads content on demand
 const TranslationDetail = () => {
   const [markdown, setMarkdown] = useState<string>("Loading...");
+  const [converted, setConverted] = useState<string>("");
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
     (async () => {
-      const { original, converted } = await translate();
+      const { original, converted: result } = await translate();
+      setConverted(result);
       setMarkdown(
         `# Translate
 ## From
 ${original}
 ## To
-${converted}`,
+${result}`,
       );
     })();
   }, []);
-  return <Detail navigationTitle="Translation" markdown={markdown} />;
+  return (
+    <Detail
+      navigationTitle="Translation"
+      markdown={markdown}
+      actions={
+        <ActionPanel>
+          <Action.CopyToClipboard title="Copy Translation" content={converted} />
+        </ActionPanel>
+      }
+    />
+  );
 };
 
 // Detail view for rephrase; loads content on demand
 const RephraseDetail = () => {
   const [markdown, setMarkdown] = useState<string>("Loading...");
+  const [converted, setConverted] = useState<string>("");
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
     (async () => {
-      const { original, converted } = await rephrase();
+      const { original, converted: result } = await rephrase();
+      setConverted(result);
       setMarkdown(
         `# Rephrase
 ## From
 ${original}
 ## To
-${converted}`,
+${result}`,
       );
     })();
   }, []);
-  return <Detail navigationTitle="Rephrase" markdown={markdown} />;
+  return (
+    <Detail
+      navigationTitle="Rephrase"
+      markdown={markdown}
+      actions={
+        <ActionPanel>
+          <Action.CopyToClipboard title="Copy Rephrase" content={converted} />
+        </ActionPanel>
+      }
+    />
+  );
 };
 
 export default Command;
