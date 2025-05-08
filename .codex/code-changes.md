@@ -19,4 +19,14 @@
 
 - Removed pre-fetch logic and `translation` state from the `Command` component.
 - Introduced `TranslationDetail` and `RephraseDetail` components that fetch and render their content when mounted.
-- Updated `Command` to push to these detail views only when the user clicks the corresponding list item.
+ - Updated `Command` to push to these detail views only when the user clicks the corresponding list item.
+
+## src/translate-to-ru.tsx: DRY refactor translate and rephrase
+
+- Introduced `runAction` helper to encapsulate:
+  - Retrieving selected text (`getQuery`)
+  - Executing external scripts
+  - Handling `stdout`/`stderr` and trimming output
+  - Copying result to clipboard
+  - Unified error handling for command and query failures
+- Simplified `translate()` and `rephrase()` to single-line wrappers calling `runAction` with their script paths and action names.

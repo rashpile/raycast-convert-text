@@ -1,5 +1,4 @@
-import { ActionPanel, Detail, List, Action, Icon, getSelectedText, showHUD, Clipboard } from "@raycast/api";
-// import * as fs from "fs";
+import { ActionPanel, Detail, List, Action, Icon, getSelectedText, Clipboard } from "@raycast/api";
 import { execFile } from "child_process";
 import { useEffect, useState } from "react";
 import { promisify } from "util";
@@ -30,39 +29,19 @@ const Command = () => (
 );
 
 async function translate(): Promise<string> {
-  try {
-    const selectedText = await getQuery();
-
-    try {
-      const { stdout, stderr } = await execFileAsync("/Users/pkoptilin/workspace/bin/deeptranslate", [selectedText]);
-      if (stderr) {
-        throw new Error(stderr);
-      }
-      const translated = stdout.trim();
-      console.log(translated);
-      await Clipboard.copy(translated);
-      // await showHUD("✅ Translated to Russian and copied to clipboard.");
-      return translated;
-    } catch (error) {
-      console.error(error);
-      // await showHUD("⚠️ Failed to translate " + selectedText);
-      return "⚠️ Failed to translate " + selectedText;
-    }
-  } catch (error) {
-    console.log(error);
-    // await showHUD("Cannot Quick Open, message: " + error);
-    return "Cannot Quick Open, message: " + error;
-  }
+  return runAction("translate", "/Users/pkoptilin/workspace/bin/deeptranslate");
 }
 
 async function rephrase(): Promise<string> {
+  return runAction("rephrase", "/Users/pkoptilin/workspace/raycast/deep-translate-en-en.sh");
+}
+
+async function runAction(action: string, script: string): Promise<string> {
   try {
     const selectedText = await getQuery();
 
     try {
-      const { stdout, stderr } = await execFileAsync("/Users/pkoptilin/workspace/raycast/deep-translate-en-en.sh", [
-        selectedText,
-      ]);
+      const { stdout, stderr } = await execFileAsync(script, [selectedText]);
       if (stderr) {
         throw new Error(stderr);
       }
@@ -72,7 +51,7 @@ async function rephrase(): Promise<string> {
       return translated;
     } catch (error) {
       console.error(error);
-      return "⚠️ Failed to rephrase " + selectedText;
+      return "⚠️ Failed to " + action + ": " + selectedText;
     }
   } catch (error) {
     console.log(error);
@@ -95,7 +74,11 @@ const TranslationDetail = () => {
   useEffect(() => {
     (async () => {
       const result = await translate();
-      setMarkdown(`# ${result}`);
+      setMarkdown(`# Translate
+## From
+todo add from
+## To
+${result}`);
     })();
   }, []);
   return <Detail navigationTitle="Translation" markdown={markdown} />;

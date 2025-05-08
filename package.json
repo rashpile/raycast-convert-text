@@ -5,6 +5,7 @@
   "description": "",
   "icon": "extension-icon.png",
   "author": "rashpile",
+  "owner": "pako",
   "categories": [
     "Productivity"
   ],
