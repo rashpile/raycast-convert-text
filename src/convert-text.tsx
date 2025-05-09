@@ -1,4 +1,4 @@
-import { ActionPanel, Detail, List, Action, getSelectedText, Clipboard, Icon, environment, Keyboard } from "@raycast/api";
+import { ActionPanel, Detail, List, Action, getSelectedText, Clipboard, Icon, environment, Keyboard, Form, showToast, Toast } from "@raycast/api";
 import { execFile } from "child_process";
 import { useEffect, useState, useRef } from "react";
 import { promisify } from "util";
@@ -78,6 +78,16 @@ const Command = () => (
         }
       />
     ))}
+    <List.Item
+      key="configure-actions"
+      title="Configure Actions"
+      icon={Icon.Gear}
+      actions={
+        <ActionPanel>
+          <Action.Push title="Configure Actions" target={<ConfigureForm />} />
+        </ActionPanel>
+      }
+    />
   </List>
 );
 
@@ -146,6 +156,39 @@ const ActionDetail = ({ action }: { action: ActionConfig }) => {
         </ActionPanel>
       }
     />
+  );
+};
+
+// Component for adding new actions via form
+const ConfigureForm = () => {
+  const handleSubmit = async (values: { name: string; title: string; script: string }) => {
+    try {
+      const fileContents = fs.readFileSync(configPath, "utf8");
+      const parsed = yaml.load(fileContents) as { actions: ActionConfig[] };
+      const actionsArray = parsed && Array.isArray(parsed.actions) ? parsed.actions : [];
+      actionsArray.push(values);
+      const newYaml = yaml.dump({ actions: actionsArray });
+      fs.writeFileSync(configPath, newYaml, "utf8");
+      await showToast(Toast.Style.Success, "Action added");
+    } catch (error) {
+      console.error(error);
+      await showToast(Toast.Style.Failure, "Failed to add action", String(error));
+    }
+  };
+
+  return (
+    <Form
+      navigationTitle="Configure Actions"
+      actions={
+        <ActionPanel>
+          <Action.SubmitForm title="Add Action" onSubmit={handleSubmit} />
+        </ActionPanel>
+      }
+    >
+      <Form.TextField id="name" title="Name" placeholder="Unique action key" />
+      <Form.TextField id="title" title="Title" placeholder="Displayed action title" />
+      <Form.TextField id="script" title="Script" placeholder="/path/to/script" />
+    </Form>
   );
 };
 

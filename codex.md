@@ -6,6 +6,6 @@ File structure:
 
   ./.codex/examples.md - API examples if exists
 
-  Folder ./.codex/examples/** - contains documentation for raycast api
+Read files in subfolders of ./.codex/examples/** - contains documentation for raycast api
 
 raycast api: https://developers.raycast.com/api-reference/user-interface

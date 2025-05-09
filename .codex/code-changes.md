@@ -68,3 +68,10 @@
   - Mapped over `actionsConfig` to render an `<Action.Push>` for every action.
   - Assigned `shortcut` prop to each `<Action.Push>` using the corresponding digit from `numberShortcuts`.
   - Removed the single-action panel in favor of listing all actions per item, ensuring all shortcuts (1–9) are always active.
+
+## src/convert-text.tsx: Add Configure Actions UI
+
+- Added `ConfigureForm` component presenting a form to input `name`, `title`, and `script`.
+- Imported `Form`, `showToast`, and `Toast` from `@raycast/api` to handle form rendering and feedback.
+- Added `Configure Actions` list item at the end of the command list, launching the form via `<Action.Push>`.
+- On submission, reads `actions.yml`, appends the new action, writes updated YAML back, and displays a toast indicating success or failure.
