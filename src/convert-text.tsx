@@ -1,4 +1,4 @@
-import { ActionPanel, Detail, List, Action, getSelectedText, Clipboard, Icon, environment } from "@raycast/api";
+import { ActionPanel, Detail, List, Action, getSelectedText, Clipboard, Icon, environment, Keyboard } from "@raycast/api";
 import { execFile } from "child_process";
 import { useEffect, useState, useRef } from "react";
 import { promisify } from "util";
@@ -37,6 +37,9 @@ try {
   console.error("Failed to load actions.yml:", error);
 }
 
+// Numeric shortcuts for actions: "1" => first action, etc.
+const numberShortcuts: Keyboard.KeyEquivalent[] = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
 const Command = () => (
   <List>
     {actionsConfig.length === 0 && (
@@ -59,7 +62,18 @@ const Command = () => (
         icon={Icon.Book}
         actions={
           <ActionPanel>
-            <Action.Push title={`Show ${action.title}`} target={<ActionDetail action={action} />} />
+            {actionsConfig.map((act, idx) => (
+              <Action.Push
+                key={act.name}
+                title={`Show ${act.title}`}
+                target={<ActionDetail action={act} />}
+                shortcut={
+                  idx < numberShortcuts.length
+                    ? { modifiers: [], key: numberShortcuts[idx] }
+                    : undefined
+                }
+              />
+            ))}
           </ActionPanel>
         }
       />

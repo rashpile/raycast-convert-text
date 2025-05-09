@@ -12,5 +12,5 @@ compiled_raycast_swift
 # misc
 .DS_Store
 
-.codex/examples.md
+.codex/examples**
 actions.yml

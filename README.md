@@ -23,19 +23,14 @@ The extension uses a YAML file named `actions.yml` to define available commands.
 <Raycast Support Path>/actions.yml
 ```
 
-If the file does not exist, it will be created automatically with the following template:
-
-```yaml
-actions:
-```
 
 ### actions.yml format
 
 Add one or more actions under the `actions` key. Each action must include:
 
-- `name`: a unique identifier for the command  
-- `title`: the display name shown in the list  
-- `script`: the absolute path to the executable or script (must accept the selected text as its first argument)  
+- `name`: a unique identifier for the command
+- `title`: the display name shown in the list
+- `script`: the absolute path to the executable or script (must accept the selected text as its first argument)
 
 Example:
 
@@ -53,14 +48,14 @@ After saving your changes, the extension list will update to show the new comman
 
 ## Usage
 
-1. Select or copy text in any application.  
-2. Trigger the “Convert Text” command in Raycast.  
-3. Choose one of your configured actions.  
+1. Select or copy text in any application.
+2. Trigger the “Convert Text” command in Raycast.
+3. Choose one of your configured actions.
 4. View the converted output and copy it to the clipboard if desired.
 
 ## Development
 
-- Dependency: `js-yaml` is used for parsing the YAML config.  
+- Dependency: `js-yaml` is used for parsing the YAML config.
 - The config file is stored under `environment.supportPath` (Raycast’s support directory).
 
 ## License
