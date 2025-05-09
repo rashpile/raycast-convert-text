@@ -55,10 +55,14 @@ const Command = () => (
         }
       />
     )}
-    {actionsConfig.map((action) => (
+    {actionsConfig.map((action, idx) => (
       <List.Item
         key={action.name}
-        title={action.title}
+        title={
+          idx < numberShortcuts.length
+            ? `${action.title} [${numberShortcuts[idx]}]`
+            : action.title
+        }
         icon={Icon.Book}
         actions={
           <ActionPanel>
