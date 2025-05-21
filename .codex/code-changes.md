@@ -75,7 +75,7 @@
 - Imported `Form`, `showToast`, and `Toast` from `@raycast/api` to handle form rendering and feedback.
 - Added `Configure Actions` list item at the end of the command list, launching the form via `<Action.Push>`.
 - On submission, reads `actions.yml`, appends the new action, writes updated YAML back, and displays a toast indicating success or failure.
-  
+
 ## src/convert-text.tsx: Show shortcut hints in action list
 
 - Updated each action `List.Item` to include its numeric shortcut in square brackets (e.g., `[1]`) after the title.

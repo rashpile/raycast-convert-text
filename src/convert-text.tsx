@@ -1,4 +1,17 @@
-import { ActionPanel, Detail, List, Action, getSelectedText, Clipboard, Icon, environment, Keyboard, Form, showToast, Toast } from "@raycast/api";
+import {
+  ActionPanel,
+  Detail,
+  List,
+  Action,
+  getSelectedText,
+  Clipboard,
+  Icon,
+  environment,
+  Keyboard,
+  Form,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { execFile } from "child_process";
 import { useEffect, useState, useRef } from "react";
 import { promisify } from "util";
@@ -58,26 +71,37 @@ const Command = () => (
     {actionsConfig.map((action, idx) => (
       <List.Item
         key={action.name}
-        title={
-          idx < numberShortcuts.length
-            ? `${action.title} [${numberShortcuts[idx]}]`
-            : action.title
-        }
+        title={idx < numberShortcuts.length ? `${action.title} [${numberShortcuts[idx]}]` : action.title}
         icon={Icon.Book}
         actions={
           <ActionPanel>
-            {actionsConfig.map((act, idx) => (
-              <Action.Push
-                key={act.name}
-                title={`Show ${act.title}`}
-                target={<ActionDetail action={act} />}
-                shortcut={
-                  idx < numberShortcuts.length
-                    ? { modifiers: [], key: numberShortcuts[idx] }
-                    : undefined
-                }
-              />
-            ))}
+            <Action.Push
+              title={`Show ${action.title}`}
+              target={<ActionDetail action={action} />}
+              shortcut={idx < numberShortcuts.length ? { modifiers: [], key: numberShortcuts[idx] } : undefined}
+            />
+            {actionsConfig.map((act, idx2) => {
+              if (idx2 === idx) {
+                return null;
+              }
+              return (
+                <Action.Push
+                  key={act.name}
+                  title={`Show ${act.title}`}
+                  target={<ActionDetail action={act} />}
+                  shortcut={idx2 < numberShortcuts.length ? { modifiers: [], key: numberShortcuts[idx2] } : undefined}
+                />
+              );
+            })}
+            {/* <Action.Push
+              title={`Show ${action.title}`}
+              target={<ActionDetail action={action} />}
+              shortcut={
+                idx < numberShortcuts.length
+                  ? { modifiers: [], key: numberShortcuts[idx] }
+                  : undefined
+              }
+            /> */}
           </ActionPanel>
         }
       />
